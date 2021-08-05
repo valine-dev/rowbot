@@ -11,9 +11,9 @@ class Config(BaseSettings):
     # Twitter API
     twitter_api_token: str = ''
 
-    retweet_control_objects: list = []
-    retweet_muted_objects: list = []
-
+    retweet_control_users: list = []
+    retweet_default_tag: str = ''
+    retweet_muted_users: list = []
 
     class Config:
         extra = "ignore"
