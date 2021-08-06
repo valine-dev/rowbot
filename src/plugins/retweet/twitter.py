@@ -123,6 +123,5 @@ async def fetch(
             [x['media_url'] for x in raw_tweets['extended_entities']['media']]
         )
         result.append(o)
-        await o.cache_all(proxies)
 
     return result
