@@ -16,6 +16,9 @@
 > - 除了 Red_Cell 以外没人知道的工作方式
 > - 鸽子以螺旋桨的形式起飞
 > - PEP8 建议我把 repo 删了
+> - 一点也不正经的注释
+> - 写 README 比写代码有意思多了
+> - # ~~*风控WRNM*~~
 
 
 ## 如何使用
@@ -23,13 +26,13 @@
 >
 > *？我Manual呢*
 >
-> *没有Manual啊，那没事了。*
+> *哦，没有Manual啊，那没事了。*
 
 将本repo下载或git clone到本地，编写配置文件(.env.*)，并安装任意CQHTTP协议端，按照[这里](https://v2.nonebot.dev/guide/cqhttp-guide.html)的指南连接本核心与协议端，您就可以使用了
 ### 那怎么配置呢？
 阅读根目录下的 `.env.example` ，里面对每个项目都打了注释，但您应该复制一份，并创建 `.env.dev` 和 `.env.prod` 对应开发环境和生产环境的配置
 ### WDNMD我看不懂
-RTFM（指[nonebot2文档](https://v2.nonebot.dev/)）
+Read-The-Fine-Manual（指[nonebot2文档](https://v2.nonebot.dev/)）
 
 当然，之后有时间**可能会做一个指南**的**咕**
 
@@ -43,10 +46,12 @@ Rowbot核心功能，追踪Twitter（以后可能支持更多平台）的特定�
 
 ~~干脆用爬虫得了~~
 
-### 运势（WORKING）
-传统艺能
+### 运势（AVALIABLE）
+**传统艺能**
 
-现已加入 ***Hitokoto*** 强力支持 运势签语一站式完成
+每人每天每个事件只有唯一解的加强版运势
+
+现已加入 ***Hitokoto*** 强力支持
 
 ### 30-30 Repeater（WORKING）
 人类的本质是复读机
@@ -55,10 +60,10 @@ Rowbot核心功能，追踪Twitter（以后可能支持更多平台）的特定�
 定做Niko对话框
 
 ## 还想要更多？
-> ~~还真是难以满足呢w~~
+> *~~没办法，你还真是难以满足呢w~~*
 
 您可以发发issue、DM轰炸提提建议或者干脆发个PR
 
 
 ## 开源协议
-本项目使用[WTFPLv2许可证](http://www.wtfpl.net/)，这意味着对于本项目，字面意义上，您他妈的爱咋咋地，更多详情请查看 LICENSE 文件。并且本项目作为开源软件，概无保修。
+本项目使用[WTFPLv2许可证](http://www.wtfpl.net/)，这意味着对于本项目，字面意义上，您他妈的爱咋咋地，更多详情请查看 LICENSE 文件。并且本项目作为自由软件，概无保修。

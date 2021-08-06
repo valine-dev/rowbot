@@ -14,6 +14,8 @@ class Config(BaseSettings):
     retweet_control_users: list = []
     retweet_default_tag: str = ''
     retweet_muted_users: list = []
+    
+    self_identity: str = ''
 
     class Config:
         extra = "ignore"

@@ -1,12 +1,16 @@
-from os import path
-
+'''Retweet:
+    Retweet总共包含三个功能
+    1./今日热图/新图 [标签]
+        该功能负责查询特定标签最新/最热的推文，返回三个
+    2./自动推送
+        该功能会自动推送在配置里指定的用户/标签的最新消息
+'''
 import nonebot
 from nonebot import on_command, require
 from nonebot.adapters import Bot, Event
-from nonebot.rule import to_me
 from nonebot.typing import T_State
+from nonebot.adapters.cqhttp import MessageSegment
 
-from . import __path__
 from .config import Config
 from .twitter import fetch
 
@@ -14,17 +18,15 @@ from .twitter import fetch
 global_config = nonebot.get_driver().config
 plugin_config = Config(**global_config.dict())
 
+proxies: dict = {
+        "http://": plugin_config.proxy_http_url,
+        "https://": plugin_config.proxy_https_url
+    }
+
 # 引入处理的事件
-recent = on_command('今日新图', rule=to_me(), priority=5)
-trend = on_command('今日热图', rule=to_me(), priority=5)
+recent = on_command('今日新图', priority=5)
+trend = on_command('今日热图', priority=5)
 tracker = require('nonebot_plugin_apscheduler').scheduler
-
-# 在cache机制搭起来之前先用全局变量解决持久化问题
-__cache__ = {'last_track_id': {}}
-
-for member in plugin_config.retweet_control_users:
-    # 初始化 cache
-    __cache__['last_track_id'][member] = ''
 
 
 @recent.handle()
@@ -41,17 +43,24 @@ async def trend_handler(bot: Bot, event: Event, state: T_State):
     await recent.finish(pic_fetch_common('popular', tag))
 
 
-@tracker.scheduled_job("cron", hour="*/1", id="feed")
+# 在cache机制搭起来之前先用全局变量解决持久化问题
+__cache__ = {'last_track_id': {}}
+for member in plugin_config.retweet_control_users:
+    # 初始化 cache
+    __cache__['last_track_id'][member] = ''
+
+
+@tracker.scheduled_job('cron', hour='*/1', id='feed')
 async def fetch_():
-    '定时追踪指定用户最新信息并推送'
-    bot = nonebot.get_bots().items()[0][1]  # 用第一个BOT
-    cpth = path.join(__path__, 'cache')
+    '定时追踪指定用户/标签最新信息并推送'
+    bot = nonebot.get_bots()[plugin_config.self_identity]
+
     for member in plugin_config.retweet_control_users:
         tweet = await fetch(
             plugin_config.bearer_token,
             member,
             'recent',
-            plugin_config.proxies,
+            proxies,
             '1'
         )[0]
         if tweet.status_id != __cache__['last_track_id'][member]:
@@ -60,13 +69,13 @@ async def fetch_():
             {tweet.text}
 
             '''
-            for cache in tweet.media_local_cache:
-                content += f'[CQ:image,file={cpth + cache}]\n'
+            for url in tweet.media_url:
+                content += MessageSegment.image(url)
             bot.send(content)
 
 
 async def pic_fetch_common(tpe: str, tag: str):
-    '今日热图和今日新图是一回事'
+    '今日热图和今日新图是一回事，这里不该拆成俩Matcher的，但我希腊奶'
 
     if not tag.startswith('#'):
         tag = '#' + tag
@@ -75,16 +84,15 @@ async def pic_fetch_common(tpe: str, tag: str):
         plugin_config.bearer_token,
         tag,
         tpe,
-        plugin_config.proxies,
+        proxies,
         '3'
     )
 
-    cpth = path.join(__path__, 'cache')
     result = ''
     for tweet in tweets:
         seg = f'作者: @{tweet.author_id}'
-        for cache in tweet.media_local_cache:
-            seg += f'[CQ:image,file={cpth + cache}]'
+        for url in tweet.media_url:
+            seg += MessageSegment.image(url)
         seg += '\n'
         result += seg
     return result
