@@ -12,6 +12,7 @@ import nonebot
 from nonebot import on_command, require
 from nonebot.adapters import Bot, Event
 from nonebot.typing import T_State
+from nonebot.log import logger
 
 from .config import Config
 from .platforms._model import Work
@@ -23,7 +24,7 @@ plugin_config = Config(**global_config.dict())
 # 将 Platform 读取为子插件
 _sub_plugins = set()
 _sub_plugins |= nonebot.load_plugins(
-    str((Path(__file__).parent / "platforms").resolve()))
+    str((Path(__file__).parent / 'platforms').resolve()))
 
 # 按需取用
 platforms = {}
@@ -32,8 +33,8 @@ for p in plugin_config.platforms:
 
 # 设置代理
 proxies: dict = {
-        "http://": plugin_config.proxy_http_url,
-        "https://": plugin_config.proxy_https_url
+        'http://': plugin_config.proxy_http_url,
+        'https://': plugin_config.proxy_https_url
     }
 
 # 定义处理的事件
@@ -46,7 +47,7 @@ async def selector(
     amount: int,
     only_media: bool = True
 ) -> list[Work]:
-    """根据目标内容确定使用哪个platform的fetch
+    '''根据目标内容确定使用哪个platform的fetch
 
     Args:
         target (str): 查询的内容，例如 #hashtag, @user, u/user, r/subreddit 等
@@ -55,12 +56,15 @@ async def selector(
 
     Returns:
         list[Work]: 返回的work列表
-    """
+    '''
     pfetch: callable
     for platform, exports in platforms:
         for prefix in exports.prefixes:
             if target.startswith(prefix):
                 pfetch = exports.fetch
+                logger.debug(
+                    f'Retweet v3: Of target {target} found platform {platform}'
+                )
                 break
     return await pfetch(
         target,
@@ -85,7 +89,7 @@ async def recent_handler(bot: Bot, event: Event, state: T_State):
         await recent.send(wording)
 
 
-# 在cache机制搭起来之前先用全局变量解决持久化问题
+# 建立 cache
 __cache__ = {'latest_id': {}}
 for entity in plugin_config.retweet_control:
     # 初始化 cache
@@ -98,7 +102,8 @@ async def feed():
     for entity in plugin_config.retweet_control:
 
         # 检查更新
-        latest = selector(entity, 1, False)[0]
+        payload = await selector(entity, 1, False)
+        latest = payload[0]
         if latest.uid != __cache__['latest_id'][entity]:
 
             __cache__['latest_id'][entity] = latest.uid
@@ -107,6 +112,9 @@ async def feed():
 
             for identity, bot in bots:
                 for group in plugin_config.retweet_feeds:
+                    logger.debug(
+                        f'Retweet v3: Bot {identity} fed {group}'
+                    )
                     await bot.send_group_msg(
                         group_id=group,
                         message=wording

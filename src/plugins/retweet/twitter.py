@@ -1,10 +1,18 @@
 import httpx
 from nonebot.log import logger
-
-from .model import Tweet
+from dataclasses import dataclass
 
 # wrapper for twitter api interactions
-# 这里为了能让 Twitter 审核看懂用英文注释
+
+
+@dataclass
+class Tweet:
+    uid: str
+    author_id: str
+    author_name: str
+    date: str
+    text: str
+    media: list
 
 
 async def _request_construct(

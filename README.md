@@ -55,7 +55,7 @@ Rowbot核心功能，追踪Twitter的特定用户或tag，定时推送或手动�
 
 现已加入 ***Hitokoto*** 强力支持
 
-### 30-30 Repeater（WORKING）
+### 30-30 Repeater（AVALIABLE）
 人类的本质是复读机
 
 ### NikoMaker（PENDING）
