@@ -24,9 +24,8 @@ proxies: dict = {
     }
 
 # 引入处理的事件
-recent = on_command('今日新图', priority=5)
-trend = on_command('今日热图', priority=5)
-tracker = require('nonebot_plugin_apscheduler').scheduler
+recent = on_command('今日新图', priority=1)
+trend = on_command('今日热图', priority=1)
 
 
 @recent.handle()
@@ -50,7 +49,6 @@ for member in plugin_config.retweet_control_users:
     __cache__['last_track_id'][member] = ''
 
 
-@tracker.scheduled_job('cron', hour='*/1', id='feed')
 async def fetch_():
     '定时追踪指定用户/标签最新信息并推送'
     bot = nonebot.get_bots()[plugin_config.self_identity]

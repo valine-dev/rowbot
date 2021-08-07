@@ -8,14 +8,12 @@ class Config(BaseSettings):
     proxy_http_url: str = 'http://127.0.0.1:8080/'
     proxy_https_url: str = 'http://127.0.0.1:8081/'
 
-    # Twitter API
-    twitter_api_token: str = ''
+    retweet_control: list = []
+    retweet_default: str = ''
+    retweet_muted: list = []
+    retweet_feeds: list = []
 
-    retweet_control_users: list = []
-    retweet_default_tag: str = ''
-    retweet_muted_users: list = []
-
-    self_identity: str = ''
+    platforms: list = ['twitter_api']
 
     class Config:
         extra = "ignore"

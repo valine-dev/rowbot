@@ -39,8 +39,10 @@ Read-The-Fine-Manual（指[nonebot2文档](https://v2.nonebot.dev/)）
 ## 功wa能keng
 > *（BOT）：我现在tm什么都不会呢，到时候考出来也就个40多分。*
 
-### Retweet（COMPLETE）
-Rowbot核心功能，追踪Twitter（以后可能支持更多平台）的特定用户或tag，定时推送或手动调出最新的内容
+### RetweetV3（COMPLETE but UNTESTED）
+Rowbot核心功能，追踪Twitter的特定用户或tag，定时推送或手动调出最新的内容
+
+> *现已重构推出V3版，可自行拓展其他平台，请在 [这里](./src/plugins/retweet_v3/README.md) RTFM*
 
 获取Twitter数据依赖于官方API，~~但由于开发者还没拿到API权限，所以能不能用开发者也不知道~~
 
@@ -63,7 +65,6 @@ Rowbot核心功能，追踪Twitter（以后可能支持更多平台）的特定�
 > *~~没办法，你还真是难以满足呢w~~*
 
 您可以发发issue、DM轰炸提提建议或者干脆发个PR
-
 
 ## 开源协议
 本项目使用[WTFPLv2许可证](http://www.wtfpl.net/)，这意味着对于本项目，字面意义上，您他妈的爱咋咋地，更多详情请查看 LICENSE 文件。并且本项目作为自由软件，概无保修。

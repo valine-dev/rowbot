@@ -12,6 +12,7 @@
 import hashlib
 import random
 from datetime import datetime
+from os.path import join
 
 import httpx
 import nonebot
@@ -34,6 +35,21 @@ proxies: dict = {
 # 引入处理的事件
 wish = on_command('运势', priority=5)
 
+# 所有可能出现的签语 这里的{e}会被请求的事件替换，{kotoba}会被签语替代, {uid}会被目标用户ID取代
+# 您应当在result文件下编辑，其中 *** 行将隔开普通结果与特殊结果， /// 行隔开每个结果
+results: list = []
+
+# 特殊签语
+special_results: list = []
+
+# 载入签语
+with open(join(__path__[0], 'results'), 'r', encoding='UTF-8') as file:
+    raw = file.read()
+chunks = raw.split('***')
+
+results = chunks[0].split(r'///')
+special_results = chunks[1].split(r'///')
+
 
 @wish.handle()
 async def wish_handler(bot: Bot, event: Event, state: T_State):
@@ -43,9 +59,9 @@ async def wish_handler(bot: Bot, event: Event, state: T_State):
     array = []
 
     if dice <= plugin_config.special:
-        array = plugin_config.special_results
+        array = special_results
     else:
-        array = plugin_config.results
+        array = results
 
     e = args if args else '今日'
     now = datetime.now().strftime(r'%Y/%m/%d')
@@ -96,4 +112,4 @@ async def make_wish(
         e=event['event'],
         kotoba=kotoba,
         uid=event['usr']
-    )
+    )[1:]
