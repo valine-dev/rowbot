@@ -33,7 +33,7 @@ proxies: dict = {
     }
 
 # 引入处理的事件
-wish = on_command('运势', priority=5)
+wish = on_command('运势', priority=1)
 
 # 所有可能出现的签语 这里的{e}会被请求的事件替换，{kotoba}会被签语替代, {uid}会被目标用户ID取代
 # 您应当在result文件下编辑，其中 *** 行将隔开普通结果与特殊结果， /// 行隔开每个结果

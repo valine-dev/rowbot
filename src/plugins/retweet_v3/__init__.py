@@ -14,7 +14,7 @@ from nonebot.adapters import Bot, Event
 from nonebot.typing import T_State
 
 from .config import Config
-from .platforms.model import Work
+from .platforms._model import Work
 
 # 从全局配置读取配置
 global_config = nonebot.get_driver().config
@@ -37,7 +37,7 @@ proxies: dict = {
     }
 
 # 定义处理的事件
-recent = on_command('今日新图', priority=5)
+recent = on_command('今日新图', priority=1)
 tracker = require('nonebot_plugin_apscheduler').scheduler
 
 

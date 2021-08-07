@@ -9,7 +9,7 @@ import httpx
 from nonebot.plugin import export
 from pydantic import BaseSettings
 
-from .model import Work, Media
+from ._model import Work, Media
 
 export = export()
 prefixes = ['@', '#']
