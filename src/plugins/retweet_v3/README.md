@@ -1,9 +1,11 @@
 # Retweet v3
+
 > ### 赤い赤い 赤い仮面のV3
 
 意识到之前的 Retweet 写得实在稀烂，决定重构一个新版本出来，这个版本实现了不少旧版难以实现的特性（例如更加简单的多平台支持）也丢掉了很多因为刚开始写对cqhttp和nonebot不熟悉的地方，甚至默认的`twitter_api.py`也使用了最新的接口，总之BIGGER(实际上框架更简洁了) & BETTER.
 
 ## 原理
+
 在这里简单阐述下v3的工作方式。
 
 首先，v3中有三个重要的概念： platform 、 Work 类 和 selector 。它们构成了一个这样的工作流：在 matcher 接收到必要的参数之后，将会调用 selector ，此时 selector 将根据请求的前缀寻找合适的 platform ，并调用 platform 相应的 fetch() 函数，最后把数据打包成 Work 实例返回给 matcher ，完成一次请求。
@@ -30,5 +32,5 @@ proxy: dict = {
     'https://': 'http://127.0.0.1:8080/'
 }
 ```
-如果您的插件实现了 `fetch()` 并声明了 `prefixes` 并使用nonebot2的export机制开放，那么这个插件就是一个合法的 platform
 
+如果您的插件实现了 `fetch()` 并声明了 `prefixes` 并使用nonebot2的export机制开放，那么这个插件就是一个合法的 platform

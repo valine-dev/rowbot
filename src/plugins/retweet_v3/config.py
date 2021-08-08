@@ -13,7 +13,7 @@ class Config(BaseSettings):
     retweet_muted: list = []
     retweet_feeds: list = []
 
-    platforms: list = ['twitter_api']
+    retweet_platforms: list = ['twitter_api']
 
     class Config:
         extra = "ignore"

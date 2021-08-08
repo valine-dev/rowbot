@@ -28,8 +28,10 @@ _sub_plugins |= nonebot.load_plugins(
 
 # 按需取用
 platforms = {}
-for p in plugin_config.platforms:
+for p in plugin_config.retweet_platforms:
     platforms[p] = require(p)
+
+logger.debug(f'Loaded platforms with {platforms}')
 
 # 设置代理
 proxies: dict = {
@@ -45,6 +47,7 @@ tracker = require('nonebot_plugin_apscheduler').scheduler
 async def selector(
     target: str,
     amount: int,
+    since: datetime,
     only_media: bool = True
 ) -> list[Work]:
     '''根据目标内容确定使用哪个platform的fetch
@@ -57,18 +60,21 @@ async def selector(
     Returns:
         list[Work]: 返回的work列表
     '''
-    pfetch: callable
-    for platform, exports in platforms:
-        for prefix in exports.prefixes:
+    pfetch: callable = None
+    for platform, exports in platforms.items():
+        for prefix in exports['prefixes']:
             if target.startswith(prefix):
-                pfetch = exports.fetch
+                pfetch = exports['fetch']
                 logger.debug(
                     f'Retweet v3: Of target {target} found platform {platform}'
                 )
                 break
+    if pfetch is None:
+        logger.warning(f'Of target {target}, no platform found.')
+        return None
     return await pfetch(
         target,
-        datetime.today(),
+        since,
         amount,
         only_media,
         proxies
@@ -78,22 +84,25 @@ async def selector(
 @recent.handle()
 async def recent_handler(bot: Bot, event: Event, state: T_State):
     args = str(event.get_message()).strip()
-    tag = args if args else plugin_config.retweet_default_tag
+    tag = args if args else plugin_config.retweet_default
 
     bot.send(event, f'正在获取今日{tag}的最新图')
 
-    result = await selector(tag, 3)
+    result = await selector(tag, 3, datetime.today())
+    if result is None:
+        recent.reject(f'未找到与{tag}匹配的平台，或许是还没支持。')
     for work in result:
         pics = ''.join([x for x in work.media.get_segment()])
         wording = f'由{work.author}绘制\n{work.text}\n{pics}\n{work.url}'
         await recent.send(wording)
+    recent.finish('以上です！')
 
 
 # 建立 cache
-__cache__ = {'latest_id': {}}
+__cache__ = {'latest_date': {}}
 for entity in plugin_config.retweet_control:
     # 初始化 cache
-    __cache__['latest_id'][entity] = ''
+    __cache__['latest_date'][entity] = ''
 
 
 @tracker.scheduled_job('cron', hour='*/1', id='feed')
@@ -101,21 +110,36 @@ async def feed():
     bots = nonebot.get_bots()
     for entity in plugin_config.retweet_control:
 
-        # 检查更新
-        payload = await selector(entity, 1, False)
-        latest = payload[0]
-        if latest.uid != __cache__['latest_id'][entity]:
+        prev = __cache__['latest_date'][entity]
+        latest: list[Work] = await selector(entity, 1, prev, False)
 
-            __cache__['latest_id'][entity] = latest.uid
-            pics = ''.join([x for x in latest.media.get_segment()])
-            wording = f'{entity}有了一条新消息\n{latest.text}\n{pics}'
+        if latest is None:
+            return
 
-            for identity, bot in bots:
-                for group in plugin_config.retweet_feeds:
-                    logger.debug(
-                        f'Retweet v3: Bot {identity} fed {group}'
-                    )
+        amount = len(latest)
+
+        if amount == 0:
+            return None
+
+        __cache__['latest_date'][entity] = latest[0].date
+
+        for identity, bot in bots.items():
+            for group in plugin_config.retweet_feeds:
+                await bot.send_group_msg(
+                    group_id=group,
+                    message=f'{entity}过去的一小时里多了{amount}新条消息！'
+                )
+
+                for msg in latest:
+                    pics = ''
+                    for media in msg.media:
+                        pics += media.get_segment()
+                    final = f'{msg.author}:\n{msg.text}' + pics
                     await bot.send_group_msg(
                         group_id=group,
-                        message=wording
+                        message=final
                     )
+
+                logger.debug(
+                    f'Retweet v3: Bot {identity} fed {group}'
+                )

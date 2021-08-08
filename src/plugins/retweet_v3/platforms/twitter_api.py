@@ -74,7 +74,7 @@ async def fetch(
         'tweets/search/recent',
         {
             'query': f'{keyword} -is:retweet{has_media}',
-            'end_time': since.strptime(r'%Y-%m-%dT00:00:00.000Z'),
+            'end_time': since.strftime(r'%Y-%m-%dT00:00:00.000Z'),
             'media.fields': 'type,url',
             'user.fields': 'name,username',
             'tweet.fields': 'created_at',
